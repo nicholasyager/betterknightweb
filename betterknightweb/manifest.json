@@ -1,0 +1,19 @@
+{
+    "name": "BetterKnightWeb",
+    "version": "1.1",
+    "manifest_version": 2,
+    "description": "Add SOFI ratings and other improvements to KnightWeb course results.",
+    "author":"Nicholas A. Yager",
+    "content_scripts":   [
+        {
+            "matches": ["https://knightweb.geneseo.edu/banweb/*"],
+            "css": ["style.css"],
+            "js":  ["jquery.js", "script.js"]
+        }
+    ],
+    "permissions": [
+        "http://nicholasyager.com/"
+    ],
+    "icons" : {"48": "knightweb-48.png",
+               "128": "knightweb-128.png"}
+}

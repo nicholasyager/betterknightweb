@@ -1,0 +1,48 @@
+.data {
+
+    text-align: center;
+
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+
+}
+
+.datascore {
+
+    text-align: center;
+
+    display: inline-block;
+    width:45px;
+
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+
+}
+
+.datagrade {
+
+    text-align: center;
+    display: inline-block;
+    width:45px;
+
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+
+}
+
+.datalabel {
+
+    font-family: Verdana,Arial Narrow, helvetica, sans-serif;
+    font-weight: normal;
+    font-size: 90%;
+
+}
+
+table {
+
+    border-collapse:collapse;
+
+}
