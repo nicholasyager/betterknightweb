@@ -6,232 +6,140 @@ $(document).ready( function() {
     // Find the listed courses
     var injection = false;
     var pageType = null;
-    $("table.datadisplaytable tbody").children('tr').each( function(index) {
 
+    var $rows = $('table.datadisplaytable tbody tr');
+    
 
-
-        if ($(this).children().get(0).className == "ddtitle" && pageType == null ) {
-            pageType = "student";
-            console.log("Page Type: Student.");
-            return;
-        }
-
-        // Do not read the header rows.
-        if ($(this).children().get(0).className == "dddead") {
-            console.log("Label detected "+index);
-            injection = false;
-            return;
-        }
-      
-        if ($(this).children().get(0).className == "ddheader" && pageType == null)
-        {
-            console.log("Label detected "+index);
-            injection = false;
-            return;
-        }
+    data = $rows.map(function() {
         
+        if ($(this).find(':nth-child(1)').hasClass("ddheader")){
+            $(this).append("<th class=ddheader>Grade</th>");
 
-        console.log(index + "  " +$(this).contents().get()[0]);
-
-        if ($(this).children().get(1).innerHTML == "CRN") {
-            $(this).children().get(12).remove();
-            $(this).children().get(11).remove();
-            $(this).children().get(12).remove();
-            $(this).children().get(5).remove();
-            //$(this).children().get(10).remove();
-
-            $(this).children().get(12).innerHTML = "Ratings";
-            $(this).children().get(10).innerHTML = "Instructor";
-            
-            $(this).children().get(9).innerHTML = "Seats";
-
-            console.log("Course header detected "+index);
-            injection = true;
-
-            //console.log($(this).children().get(5));
-            return;
-        }
-
-
-        if (injection == true) {
-            console.log("Injection activated.");
-        $(this).children('td').each( function(index) {
-
-            if (index == 1) {
-                if (this.innerHTML == "&nbsp;") {
-                    $(this).data("Time","true");
-                } else {
-                    $(this).data("Time","false");
-                }
-                $(this).addClass("crn");
-            } else if (index == 2) {
-                $(this).addClass("subject");
-            } else if (index == 3) {
-                $(this).addClass("course");
-            } else if (index == 10) {
-                $(this).addClass("cap");
-            } else if (index == 12) {
-                $(this).addClass("rem");
-            } else if (index == 13) {
-                $(this).addClass("instructor");
-            }
-        });
-
-        if ($(this).children(".crn").data("Time") == "true") {
-
-            $(this).children('td').each( function(index) {
-                $(this).css("border-bottom","1px solid lightgray");
-            });
+        } else if ($(this).find(':nth-child(1)').hasClass("ddtitle")){
+            $(this).find(':nth-child(1)').attr('colspan',15);
         } else {
-
-            $(this).children('td').each( function(index) {
-                $(this).css("border-top","1px solid lightgray");
-            });
-
-
-        }
-
-        var crn = $(this).children(".crn").text();
-        var subject = $(this).children(".subject").text();
-        var course = $(this).children(".course").text();
-        var instructor = $(this).children(".instructor").text().split(" ");
-        var remaining = $(this).children(".rem").text();
-        var cap = $(this).children(".cap").text();
-
-        var name;
-
-        if (instructor[2] == "O'Donnell") {
-            instructor[2] = "Donnell";
-        }
-
-        if (instructor.length <= 3) {
-            if (instructor.length % 3 == 0) {
-                name = instructor[1] + ", " + instructor[0];
-            } else {
-                name = instructor[2] + ", " + instructor[0];
-            }
-        } else if (instructor.length == 4) {
-            name = instructor[2] + ", " + instructor[0];
-        } else if (instructor.length > 4) {
-            if (instructor[2] == "(P),") {
-                name = instructor[1] + ", " + instructor[0];
-            } else { 
-                name = instructor[2] + ", " + instructor[0];
-            }
-
+            $(this).append("<td class=dddefault></td>");
+            $(this).find(":nth-child(17)").html("");
         }
 
 
-        $(this).children().get(12).remove();
-        $(this).children().get(11).remove();
-        $(this).children().get(12).remove();
-        $(this).children().get(5).remove();
+        var $row = $(this);
 
-        
+        return {
+            crn: $row.find(':nth-child(2)').text(),
+            department: $row.find(':nth-child(3)').text(),
+            course: $row.find(':nth-child(4)').text(),
+            section: $row.find(':nth-child(5)').text(),
+            capacity: parseInt($row.find(':nth-child(11)').text()),
+            remaining: parseInt($row.find(':nth-child(13)').text()),
+            instructor: $row.find(':nth-child(14)').text().replace(" (P)","")
+        };
 
-        // Rewrite some values for better visability.
+    }).get();
 
-        if (isNaN(parseInt(cap)) == false && isNaN(parseInt(remaining)) == false ) {
-           
-            // Set conditional coloring.
-            var remColor = "green";
-            var seats = $(this).children().get(9);
-            var color = "white";
-            if (parseInt(remaining) <= 0) {
-                remColor = "red";
-            } else if (parseInt(remaining) > 0 && parseInt(remaining) <= 3) {
-                remColor = "orange";
-            } else if (parseInt(remaining) > 3 && parseInt(remaining) <= parseInt(cap) * 0.5 ) {
-                remColor = "yellow";
-                color = "black";
-            }
+    console.log(data);
+
+    // Remove useless columns
+    $('table.datadisplaytable tbody td').remove(":nth-child(6)");
+    $('table.datadisplaytable tbody th').remove(":nth-child(6)");
+    $('table.datadisplaytable tbody td').remove(":nth-child(11)");
+    $('table.datadisplaytable tbody td').remove(":nth-child(11)");
+    $('table.datadisplaytable tbody th').remove(":nth-child(11)");
+    $('table.datadisplaytable tbody th').remove(":nth-child(11)");
+    $('table.datadisplaytable tbody td').remove(":nth-child(12)");
+    $('table.datadisplaytable tbody th').remove(":nth-child(12)");
 
 
-            $(seats).html("<div class=data>"+remaining + "/" + cap+"</div>");
-            $(seats).children(".data").css( { "background-color":remColor,
-                                              "color":color} );
+    $('th.ddheader:nth-child(10)').text("Seats");
+    $('th.ddheader:nth-child(13)').text("Rating");
+
+
+    
+
+    $.each(data, function(index, listing) {
+
+
+        if (index > 1) {
+        $rows.eq(index).find(":nth-child(11)").html(listing.instructor.replace(",",",<br>"));
+        }
+        if ( isNaN(listing.capacity) ) {
+            return;
         }
 
-        $(this).children().get(10).innerHTML = name;
+        // Parse the Instructor names
+        var instructorArray = listing.instructor.split(",")[0].split(" ");
+        var instructor = instructorArray[instructorArray.length - 1];
+        var percentCapacity = Math.round(parseFloat(listing.remaining)/listing.capacity * 100);
 
-        if (isNaN(parseInt(crn)) == false ) {
 
 
-            $(this).children().get(12).setAttribute("id", crn);
             $.ajax({
                     type: "GET",
-                    url:"http://nicholasyager.com/data/sofis/query.php",
+                    url:"https://www.nicholasyager.com/data/sofis/query.php",
                     async: true,
                     dataType: "JSON",
                     data:   {
-                                crn: crn,
-                                course : course,
-                                subject : subject,
-                                instructor : name
+                                crn: listing.crn,
+                                course : listing.course,
+                                subject : listing.department,
+                                instructor : instructor
                             },
                     success : function (data) {
-                        var items = [];
-                        $.each(data, function(key, value) {
-                            items.push(value);
-                        });
-                        var remaining = parseFloat(items[2]);
-                        var grade = items[3];
-                        var color = "white";
-                        var color2 = "white";
-                        var remColor = "green";
-                        var letterColor = "green";
-                        
-                        if (remaining == 0) { 
-                            remColor = "purple";
-                            remaining = "New";
-                            grade = "New";
-                        } else if (remaining <= 2) {
-                            remColor = "red";
-                        } else if (remaining > 2 && remaining <= 3) {
-                            remColor = "orange";
-                        } else if (remaining > 3 && remaining <= 4) {
-                            remColor = "yellow";
-                            color = "black";
-                        } else if (remaining > 4 && remaining <= 5) {
-                            remColor = "green";
-                        } else if (remaining > 5) {
-                            remColor = "blue";
+                        $rows.eq(index).find(":nth-child(10)").text(listing.remaining+"/"+listing.capacity);
+                        $rows.eq(index).find(":nth-child(10)").removeClass();
+                        $rows.eq(index).find(":nth-child(13)").removeClass();
+                        $rows.eq(index).find(":nth-child(14)").removeClass();
+                        $rows.eq(index).find(":nth-child(10)").addClass("data");
+                        $rows.eq(index).find(":nth-child(13)").text(data.average)
+                        $rows.eq(index).find(":nth-child(14)").text(data.expected);
+                        $rows.eq(index).find(":nth-child(13)").addClass("data");
+                        $rows.eq(index).find(":nth-child(14)").addClass("data");
+
+                        if (percentCapacity > 50){
+                            $rows.eq(index).find(":nth-child(10)").addClass("green");
+                        } else if (percentCapacity > 25){
+                            $rows.eq(index).find(":nth-child(10)").addClass("yellow");
+                        } else if (percentCapacity > 1){
+                            $rows.eq(index).find(":nth-child(10)").addClass("orange");
+                        } else {
+                            $rows.eq(index).find(":nth-child(10)").addClass("red");
                         }
 
-                        if (grade == "D") {
-                            letterColor = "red";
-                        } else if (grade == "C") {
-                            letterColor = "orange";
-                        } else if (grade == "B") {
-                            letterColor = "green";
-                        } else if (grade == "A") {
-                            letterColor = "blue";
-                        } else if (grade == "New") {
-                            letterColor = "purple";
+                        if (data.average >= 5){
+                            $rows.eq(index).find(":nth-child(13)").addClass("blue");
+                        } else if (data.average >= 4){
+                            $rows.eq(index).find(":nth-child(13)").addClass("green");
+                        } else if (data.average >= 3){
+                            $rows.eq(index).find(":nth-child(13)").addClass("yellow");
+                        } else if (data.average >= 2){
+                            $rows.eq(index).find(":nth-child(13)").addClass("orange");
+                        } else if (data.average > 0)  {
+                            $rows.eq(index).find(":nth-child(13)").addClass("red");
+                        } else {
+                            $rows.eq(index).find(":nth-child(13)").addClass("gray");
                         }
 
+                        if (data.expected == "A" ){
+                            $rows.eq(index).find(":nth-child(14)").addClass("blue");
+                        } else if ( data.expected == "B+"|| data.expected == "A-") {
+                            $rows.eq(index).find(":nth-child(14)").addClass("green");
+                        } else if ( data.expected == "B" ||data.expected == "B-" ) {
+                            $rows.eq(index).find(":nth-child(14)").addClass("yellow");
+                        } else if (data.expected == "C" || data.expected == "C+") {
+                            $rows.eq(index).find(":nth-child(14)").addClass("orange");
+                        } else if (data.expected == "C-" || data.expected == "D" ) {
+                            $rows.eq(index).find(":nth-child(14)").addClass("red");
 
-                        $("#"+crn).html("<table width=100%><tr width=100%><td><span class='datalabel'>Rating:</span></td><td><div id='score-"+crn+"' class=datascore>"+remaining+"</div></td></tr>"+
-                                "<tr width=100%;><td><span class='datalabel'>Avg. Grade:</span></td><td><div id='grade-"+crn+"' class=datagrade>"+grade+"</div></tr></table>");
+                        } else {
+                            $rows.eq(index).find(":nth-child(14)").addClass("gray");
+                        }
 
-                        $("#score-"+crn).css( { "background-color":remColor,
-                                                            "color":color} )
-                        $("#grade-"+crn).css( { "background-color":letterColor,
-                            "color":color2} );
-;
 
                     }
             });
-
-        } else {
-
-            $(this).children().get(12).innerHTML = "";
-
-        }
-
-        }
-
+            
     });
+
 
 
 
