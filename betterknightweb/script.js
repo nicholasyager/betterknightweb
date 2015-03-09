@@ -2,6 +2,11 @@ $(document).ready( function() {
 
     console.log("BetterKnightWeb active");
 
+    var title  = $("a.selected").text();
+    console.log(title);
+    if (title != "SUNY GeneseoLook-Up Classes to Add:"){
+        return;
+    }
 
     // Find the listed courses
     var injection = false;
